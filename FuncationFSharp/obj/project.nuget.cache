@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "fFprxt28Gdl4tyhv5/RNtlHuf3i0pDeAOUSZ2GKGHnyl4oyUi711XRzKsD3Jyl1dhOpPPC8GBuLBK+2pDcG8ZQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\ASROCK AB350M PRO4\\source\\repos\\FunctionalCSharp\\FuncationFSharp\\FuncationFSharp.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ASROCK AB350M PRO4\\.nuget\\packages\\fsharp.core\\5.0.0\\fsharp.core.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
