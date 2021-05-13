@@ -1,14 +1,14 @@
-﻿using LanguageExt;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LaYumba.Functional;
+using LaYumba.Functional.Option;
 
-namespace FunctionalCSharp
+namespace FunctionalCSharp {
+
+static class Chapter4
 {
-    using static LanguageExt.Prelude;
-
-    static class Chapter4
-    {
         // 1 Implement Map for ISet<T> and IDictionary<K, T>. (Tip: start by writing down
         // the signature in arrow notation.)
         static ISet<R> Map<T,R>(this ISet<T> ts, Func<T,R> f)
@@ -34,17 +34,17 @@ namespace FunctionalCSharp
         }
 
         // 2 Implement Map for Option and IEnumerable in terms of Bind and Return.
-        public static Option<R> Map<T,R>(this Option<T> option, Func<T,R> f) => option.Bind(t => Some(f(t)));
+        //public static Option<R> Map<T,R>(this Option<T> option, Func<T,R> f) => option.Bind(t => Some(f(t)));
 
-        public static IEnumerable<R> Map<T,R>(this IEnumerable<T> ts, Func<T,R> f) => ts.Bind(t => List(f(t)));
+        //public static IEnumerable<R> Map<T,R>(this IEnumerable<T> ts, Func<T,R> f) => ts.Bind(t => List(f(t)));
         
        
-        public static Option<T> Lookup<K,T>(this IDictionary<K,T> dict, K key)
-        {
-            T value;
-            return dict.TryGetValue(key, out value)
-                ? Some(value) : None;
-        }
+        //public static Option<T> Lookup<K,T>(this IDictionary<K,T> dict, K key)
+        //{
+        //    T value;
+        //    return dict.TryGetValue(key, out value)
+        //        ? Some(value) : None;
+        //}
 
         // 3 Use Bind and an Option-returning Lookup function (such as the one we defined
         // in chapter 3) to implement GetWorkPermit, shown below. 
