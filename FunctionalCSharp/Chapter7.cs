@@ -1,6 +1,7 @@
 ﻿using LaYumba.Functional;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 
 namespace Exercises.Chapter7
 {
@@ -44,11 +45,46 @@ namespace Exercises.Chapter7
         // fields: number type(home, mobile, ...), country code('it', 'uk', ...), and number.
         // `CountryCode` should be a custom type with implicit conversion to and from string.
 
+        public enum NumberType { Mobile, Home, Work }
+
+        public class CountryCode
+        {
+            private string Value { get; }
+
+            public CountryCode(string value)
+            {
+                Value = value;
+            }
+
+            public static implicit operator string(CountryCode c) => c.Value;
+            public static implicit operator CountryCode(string s) => new CountryCode(s);
+
+            public override string ToString() => Value;
+        }
+
+        public record PhoneNumber
+        {
+            public NumberType Type { get; init; }
+            public CountryCode CountryCode { get; init; }
+            public string Number { get; init; }
+
+
+        }
+
         // Now define a ternary function that creates a new number, given values for these fields.
         // What's the signature of your factory function? 
+        // NewPhoneNumber -> CountryCode -> NumberType -> string -> PhoneNumber
+        public static Func<CountryCode, NumberType, string, PhoneNumber> NewPhoneNumber =
+            (countryCode, numberType, number)
+                => new PhoneNumber {CountryCode = countryCode, Type = numberType, Number = number};
 
         // Use partial application to create a binary function that creates a UK number, 
         // and then again to create a unary function that creates a UK mobile
+        public static Func<NumberType, string, PhoneNumber> NewUkPhoneNumber =
+            NewPhoneNumber.Apply((CountryCode) "UK");
+
+        public static Func<string, PhoneNumber> NewUKMobileNumber =
+            NewUkPhoneNumber.Apply(NumberType.Mobile);
 
 
         // 3. Functions everywhere. You may still have a feeling that objects are ultimately 
@@ -62,6 +98,69 @@ namespace Exercises.Chapter7
         //static void ConsumeLog(Log log) 
         //   => log.Info("look! no objects!");
 
+        class Unit
+        {
+        }
+
+        static class ConsoleWriter
+        {
+            public static Unit WriteLine(string line)
+            {
+                Console.WriteLine(line);
+                return new Unit(); 
+            }
+
+            public static Unit WriteLineToFile(string filename, string line)
+            {
+                System.IO.File.WriteAllLines(filename, new List<string> { line });
+                return new Unit();
+            }
+        }
+
         enum Level { Debug, Info, Error }
+
+        delegate Unit Log(Level level, string message);
+
+        static Log ConsoleLogger = (Level level, string message) =>
+            ConsoleWriter.WriteLine($"{DateTime.Now}[{level}] - {message}");
+
+        static Log ToDelegate(this Func<Level, string, Unit> f)
+        {
+            Log myDeleg = (x,y) => f(x,y);
+            return myDeleg;
+        }
+
+
+        private static Func<string, Level, string, Unit> FileLogger = (string filename, Level level, string message) =>
+            ConsoleWriter.WriteLineToFile(filename,$"{DateTime.Now}[{level}] - {message}");
+
+        private static Log FileLogger2 =
+            FileLogger.Apply("log.txt").ToDelegate();
+            //FileLogger.Apply("log.txt");
+
+        //FileLogger2(Level.Debug, "rgrgr");
+
+        //FileLogger (Level.Debug) ("rwgwrgrwgwr")
+
+        static Unit Debug(this Log log, string message) => log(Level.Debug, message);
+        static Unit Info(this Log log, string message) => log(Level.Info, message);
+        static Unit Error(this Log log, string message) => log(Level.Error, message);
+
+        public static void _main()
+            => ConsumeLog(ConsoleLogger);
+
+        static void ConsumeLog(Log log)
+            => log.Info("this is an info message");
+
+
+
+        //static Func<Log, string, PhoneNumber> NewLoggedUkPhoneNumber = (logger, number) =>
+
+        //ConsoleLogger.Info("")
+
+
+
+
+
     }
 }
