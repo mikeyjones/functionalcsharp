@@ -13,14 +13,36 @@ namespace FunctionalCSharp.Chapter8
             Either<L, R> eitherT)
             => eitherT.Bind(t => eitherF.Bind<L, Func<R, Either<L, RR>>, RR>(f => f(t)));
 
+        public static Either<L, RR> Apply2<L, R, RR>(this Either<L, RR> eitherF,
+            Either<L, R> eitherT)
+            => new Either<L, RR>();
 
+        public static Either<L, R> Apply3<L, R, RR>(this Either<L, RR> eitherF,
+            Func<RR, Either<L, R>> f)
+        {
+            return eitherF.Match(
+                Left: l => Left(l),
+                Right: right => f(right));
+        }
 
-        //=> eitherF.Match(
-        //    leftF => Left(leftF),
-        //    rightF => eitherT.Match(
-        //        leftT => Left(leftT),
-        //        rightT => Right(rightF(rightT))
-        //    ));
+        public static Exceptional<T> Apply<T, TT>(this Exceptional<TT> eitherF,
+            Func<TT, Exceptional<T>> f)
+        {
+            return eitherF.Match(
+                Exception: l => l,
+                Success:
+                right =>
+                {
+                    return f(right);
+                });
+        }
+
+        public static Either<L, RR> SelectMany<L, R, RR>(this Either<L, R> eitherL, Func<R, Either<L,RR>> project)
+        {
+            return eitherL.Match(
+                Left: l => Left(l),
+                Right: r => project(r));
+        }
 
 
         // 2. Implement the query pattern for Either and Exceptional. Try to write down the signatures for Select and SelectMany without looking at the examples
@@ -37,24 +59,19 @@ namespace FunctionalCSharp.Chapter8
         public void HowDoesThisWork()
         {
 
-            Func<string, (int, bool)> ParseAge = (x) => GetAge2(x);
-
-            Either<string, Func<string,(int,bool)>> GetAge(string ageStr)
+            Either<string, int> GetAge(string ageStr)
             {
-                //return Right(ParseAge(ageStr));
+                if (int.TryParse(ageStr, out var value))
+                {
+                    return Right(value);
+                }
+                else
+                {
+                    return Left("Some error");
+                }
          
 
             }
-
-            
-
-            (int, bool) GetAge2(string ageStr)
-            {
-                var result = int.TryParse(ageStr, out int value);
-                return (value, result);
-            }
-
-            //var temp = (string age) => GetAge(age);
 
             Either<string, int> AgeGreaterThan10(int age)
             {
@@ -68,9 +85,79 @@ namespace FunctionalCSharp.Chapter8
                 }
             }
 
-            
+            Func<int, Either<string, int>> AgeGreaterThan10_2 =
+                (age) => age > 9 ? Right(age) : Left("age has to be 10 or higher");
 
-            GetAge("13").Apply(AgeGreaterThan10);
+
+
+
+            var result = GetAge("9").Apply3(AgeGreaterThan10_2);
+
+            Assert.True(true);
+        }
+
+
+        [Test]
+        public void HowDoesThisAlsoWork()
+        {
+
+            Exceptional<int> GetAge(string ageStr)
+            {
+                if (int.TryParse(ageStr, out var value))
+                {
+                    return value;
+                }
+                else
+                {
+                    return new Exception("Some error");
+                }
+
+
+            }
+
+
+            Func<int, Exceptional<int>> AgeGreaterThan10 =
+                (age) => age > 9 ? age : new Exception("age has to be 10 or higher");
+
+
+
+
+            var result = GetAge("9").Apply(AgeGreaterThan10);
+
+            Assert.True(true);
+        }
+
+        [Test]
+        public void HowDoesThisAlsoWorkAswell()
+        {
+
+            Either<string, int> GetAge(string ageStr)
+            {
+                if (int.TryParse(ageStr, out var value))
+                {
+                    return value;
+                }
+                else
+                {
+                    return "Some error";
+                }
+
+
+            }
+
+
+            Func<int, Either<string, int>> AgeGreaterThan10 =
+                (age) => age > 9 ? age : "age has to be 10 or higher";
+
+
+
+
+            var result = GetAge("9").SelectMany((age) =>
+            {
+                return (age > 9) ? Right(age) : Left("age has to be 10 or higher");
+            });
+
+            Assert.True(true);
         }
     }
 }
