@@ -44,6 +44,21 @@ namespace FunctionalCSharp.Chapter8
                 Right: r => project(r));
         }
 
+        public static Either<TL, TRr> SelectMany<TL, TR, TRr>(this Either<TL, TR> eitherL, Func<TR, Either<TL, TRr>> bind, Func<TL,TR,TRr> project)
+        {
+            return eitherL.Match(
+                Left: l => Left(l),
+                Right: t => bind(t).Match(
+                    
+                    l => Left(l),
+                    (r) => Right(project(l,))));
+        }
+
+        // IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(
+        // this IEnumerable<TSource> source,
+        // Func<TSource, IEnumerable<TCollection>> collectionSelector,
+        // Func<TSource, TCollection, TResult> resultSelector)
+
 
         // 2. Implement the query pattern for Either and Exceptional. Try to write down the signatures for Select and SelectMany without looking at the examples
         //    for the implementation, just follow the types-fi it type checks, it's probably right!
@@ -152,10 +167,7 @@ namespace FunctionalCSharp.Chapter8
 
 
 
-            var result = GetAge("9").SelectMany((age) =>
-            {
-                return (age > 9) ? Right(age) : Left("age has to be 10 or higher");
-            });
+            var result = GetAge("9").SelectMany(age => age >= 10  ? Right(age) : Left("age has to be 10 or higher"));
 
             Assert.True(true);
         }

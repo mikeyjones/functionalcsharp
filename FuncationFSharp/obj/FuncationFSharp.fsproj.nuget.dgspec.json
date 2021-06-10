@@ -26,7 +26,8 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {},
+          "https://intelligenteditingdev.pkgs.visualstudio.com/_packaging/IntelligentEditing%40Local/nuget/v3/index.json": {}
         },
         "frameworks": {
           "net5.0": {
